@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.1/web3.min.js"></script>
+    
+</head>
+<body>
+    <button id="get_balance_button">Send transaction</button>
+    <p id="block_height_window">Make sure that Goerli is selected in Metamask as your default chain</p>
+
+    <script type="module">
+        let web3;
+        let accounts;
+        async function metamask_conn(){
+            
+            if (window.ethereum) {
+                await window.ethereum.enable();
+                web3 = new Web3(window.ethereum)
+                const accounts = await web3.eth.getAccounts();
+                console.log("Current signed in account: " + accounts[0]);
+            }
+            else{
+                console.log("window.ethereum not found");
+            }
+            
+
+        }
+        
+        import {contractABI} from './MyTokenABI.js';
+
+        
+
+        async function send_transaction(){
+            console.log("inside send_transaction")
+            /*
+            var myContract = new web3.eth.Contract({contract,
+                address: "0x03C7b5333376A3175b5Baa98E1C27B94758F10Ef",
+                gasPrice: '20000000000' // default gas price in wei, 20 gwei in this case
+            });
+
+            console.log(myContract);
+            */
+
+            const contractInstance = await new web3.eth.Contract(contractABI,"0x03C7b5333376A3175b5Baa98E1C27B94758F10Ef");
+            console.log(contractInstance);
+            
+            const send = async() => {
+                const accounts = await web3.eth.getAccounts();
+                const _from = accounts[0];
+
+                let decimals = web3.utils.toBN(18);
+                let amount = web3.utils.toBN(10);
+                
+                const tx = {
+                    from: _from,
+                    to: "0x15433DA387451F9dE4565280C85506CB71aF9376",
+                    gas: "50000",
+                    value: "8AC7230489E80000"
+                }
+                /*
+                ethereum.request({method: 'eth_sendTransaction', params:[tx]}).then(txhash => {
+                    console.log(txhash);
+                    alert("processing, please wait 10-20 seconds..")
+                    checkTransactionConfirmation(txhash).then(r => alert(r));
+                })
+                */
+
+                let txhash;
+                contractInstance.methods.transfer(tx.to, amount.mul(web3.utils.toBN(10).pow(decimals))).send({from: _from})
+                    .on('transactionHash', function(hash){
+                    txhash = hash;
+                    console.log(hash);
+                });
+               
+            }
+
+            send();
+            
+
+
+        }
+
+        async function send_transaction_listener(){
+            send_transaction();
+            
+        }
+
+        metamask_conn();
+        document.getElementById("get_balance_button").addEventListener("click",send_transaction_listener);
+
+    </script>
+</body>
+</html>
