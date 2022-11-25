@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.1/web3.min.js"></script>
+    
+</head>
+<body>
+    <p>Your metamask needs to have Goerli set as its default Chain</p>
+    <button id="get_balance_button">Display balance of your account</button>
+    <p id="balance_window"></p>
+
+    <script type="module">
+        let web3;
+        let accounts;
+        async function metamask_conn(){
+            
+            if (window.ethereum) {
+                await window.ethereum.enable();
+                web3 = new Web3(window.ethereum)
+                const accounts = await web3.eth.getAccounts();
+                console.log("Current signed in account: " + accounts[0]);
+            }
+            else{
+                console.log("window.ethereum not found");
+            }
+            
+
+        }
+        
+        import {contractABI} from './MyTokenABI.js';
+
+        
+
+        async function get_balance(){
+            console.log("inside get_balance")
+            const contractInstance = await new web3.eth.Contract(contractABI,"0x03C7b5333376A3175b5Baa98E1C27B94758F10Ef");
+            console.log(contractInstance);
+            
+            const balance = async() => {
+                const accounts = await web3.eth.getAccounts();
+                const _from = accounts[0];
+                const balance = await contractInstance.methods.balanceOf(_from).call()
+                return balance;
+            }
+
+            let bal = await balance();
+            console.log(bal);
+            return bal;
+        }
+
+        async function balance_listener(){
+            let balance = await get_balance();
+            document.getElementById("balance_window").innerHTML = "MyToken balance of current metamask address: " + balance*(10**-18);
+            
+            console.log(bh);
+        }
+
+        metamask_conn();
+        document.getElementById("get_balance_button").addEventListener("click",balance_listener);
+
+    </script>
+</body>
+</html>
