@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.1/web3.min.js"></script>
+    
+</head>
+<body>
+    <button id="block_height_button">Display Goerli block height</button>
+    <p id="block_height_window"></p>
+
+    <script>
+        let web3;
+        async function metamask_conn(){
+            
+            if (window.ethereum) {
+                await window.ethereum.enable();
+                web3 = new Web3(window.ethereum)
+            }
+            else{
+                console.log("window.ethereum not found");
+            }
+            
+
+        }
+
+        async function get_block_height(){
+            let bh = await web3.eth.getBlockNumber();
+            document.getElementById("block_height_window").innerHTML = "block height of injected metamask blockchain: " + bh;
+            
+            console.log(bh);
+        }
+
+        metamask_conn();
+        document.getElementById("block_height_button").addEventListener("click",get_block_height);
+
+    </script>
+</body>
+</html>
